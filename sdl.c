@@ -20,14 +20,17 @@ void handle_input(chip8_t *chip8) {
   SDL_Event event;
 
   while (SDL_PollEvent(&event)) {
+
+    // TODO: HANDLE OTHER KEY INPUTS
+
     switch (event.type) {
 
     case SDL_QUIT:
-      // TODO: Handle other key inputs.
       chip8->state = QUIT;
       return;
 
     case SDL_KEYDOWN:
+
       switch (event.key.keysym.sym) {
       case SDLK_ESCAPE:
         chip8->state = QUIT;
@@ -35,6 +38,7 @@ void handle_input(chip8_t *chip8) {
       default:
         break;
       }
+
       break;
 
     case SDL_KEYUP:
