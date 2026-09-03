@@ -1,3 +1,4 @@
+#include "SDL_video.h"
 #include "utils.h"
 
 // Clear screen / SDL Window to background color
@@ -35,4 +36,8 @@ void handle_input(chip8_t *chip8) {
       break;
     }
   }
+}
+
+void set_win_title(SDL_Window *window, const char *title) {
+  SDL_SetWindowTitle(window, title);
 }

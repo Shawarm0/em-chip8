@@ -39,5 +39,6 @@ void term_sdl(const sdl_t sdl);
 void clear_screen(const sdl_t sdl, const config_t config);
 void update_screen(const sdl_t sdl);
 void handle_input(chip8_t *chip8);
+void set_win_title(SDL_Window *window, const char *title);
 
 #endif

@@ -17,6 +17,11 @@ int main(int argc, char **argv) {
   if (!init_chip8(&chip8))
     exit(EXIT_FAILURE);
 
+  // Track the state
+  if (chip8.state == RUNNING) {
+    set_win_title(sdl.window, "CHIP8 - RUNNING");
+  }
+
   // Main emulator loop
   while (chip8.state != QUIT) {
 
