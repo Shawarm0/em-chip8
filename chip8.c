@@ -7,7 +7,8 @@
 
 
 typedef struct {
-	SDL_Window * window;
+	SDL_Window *window;
+	SDL_Renderer *renderer
 } sdl_t;
 
 typedef struct {
@@ -29,6 +30,12 @@ bool init_sdl(sdl_t *sdl, config_t config) {
 
 	if (!sdl->window) {
 		SDL_Log("Could not create SDL window %s\n", SDL_GetError());
+		return false;
+	}
+
+	sdl->renderer = SDL_CreateRenderer(sdl->window, -1, SDL_RENDERER_ACCELERATED);	
+	if (!sdl->renderer) {
+		SDL_Log("Could not create SDL renderer %s\n", SDL_GetError());
 		return false;
 	}
 
@@ -56,7 +63,8 @@ bool set_config_from_args(config_t *config, int argc, char **argv) {
 
 
 void final_cleanup(const sdl_t *sdl) {
-	SDL_DestroyWindow(sdl->window);
+	SDL_DestroyRenderer(sdl.renderer);
+	SDL_DestroyWindow(sdl.window);
 	SDL_Quit();
 }
 
@@ -70,8 +78,8 @@ int main(int argc, char **argv) {
 	if (!set_config_from_args(&config, argc, argv)) exit(EXIT_FAILURE);
 	
 
-	// Initialise SDL
-	sdl_t sdl = {0};
+	// Initialise SDL	
+	sdl_t sdl = {0};	
 	if (!init_sdl(&sdl, config)) exit(EXIT_FAILURE);
 
 
