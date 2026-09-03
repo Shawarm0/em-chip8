@@ -35,6 +35,11 @@ bool init_sdl(sdl_t *sdl, config_t config) {
   return true;
 }
 
+bool init_chip8(chip8_t *chip8) {
+  chip8->state = RUNNING; // Default machine state to running.
+  return true;
+}
+
 /** HACK: Default parameters not handled.
  *
  *  Initialises the emulator configuration with default values and

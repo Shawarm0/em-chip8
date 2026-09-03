@@ -2,4 +2,4 @@ CFLAGS=-std=c17 -Wall -Wextra -Werror
 
 
 all:
-	gcc chip8.c utils.c -o out/chip8  $(CFLAGS) `sdl2-config --cflags --libs`
+	gcc chip8.c utils.c sdl.c -o out/chip8  $(CFLAGS) `sdl2-config --cflags --libs`
