@@ -19,4 +19,8 @@ typedef struct {
                           // 20x larger window
 } config_t;
 
+bool init_sdl(sdl_t *sdl, config_t config);
+bool set_config_from_args(config_t *config, int argc, char **argv);
+void term_sdl(const sdl_t sdl);
+
 #endif
