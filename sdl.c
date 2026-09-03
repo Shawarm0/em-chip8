@@ -1,3 +1,4 @@
+#include "SDL_keycode.h"
 #include "SDL_video.h"
 #include "utils.h"
 
@@ -27,6 +28,13 @@ void handle_input(chip8_t *chip8) {
       return;
 
     case SDL_KEYDOWN:
+      switch (event.key.keysym.sym) {
+      case SDLK_ESCAPE:
+        chip8->state = QUIT;
+        return;
+      default:
+        break;
+      }
       break;
 
     case SDL_KEYUP:
