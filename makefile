@@ -2,7 +2,7 @@ CFLAGS = -std=c17 -Wall -Wextra -Werror
 CC = gcc
 TARGET = out/chip8
 
-SRC = src/chip8.c src/utils.c src/sdl.c
+SRC = src/chip8.c src/utils.c src/sdl.c src/CPU.c
 
 all:
 	mkdir -p out

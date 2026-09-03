@@ -16,7 +16,7 @@ void clear_screen(const sdl_t sdl, const config_t config) {
 
 void update_screen(const sdl_t sdl) { SDL_RenderPresent(sdl.renderer); }
 
-void handle_input(chip8_t *chip8) {
+void handle_input(chip8_t *chip8, sdl_t sdl) {
   SDL_Event event;
 
   while (SDL_PollEvent(&event)) {
@@ -34,6 +34,16 @@ void handle_input(chip8_t *chip8) {
       switch (event.key.keysym.sym) {
       case SDLK_ESCAPE:
         chip8->state = QUIT;
+        return;
+      case SDLK_SPACE:
+        if (chip8->state == RUNNING) {
+          chip8->state = PAUSED;
+          set_win_title(sdl.window, "CHIP8 - PAUSED");
+          puts("==== PAUSED ====");
+        } else {
+          chip8->state = RUNNING;
+          set_win_title(sdl.window, "CHIP8 - RUNNING");
+        }
         return;
       default:
         break;
