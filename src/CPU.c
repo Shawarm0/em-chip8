@@ -120,5 +120,8 @@ void emulate_instruction(chip8_t *chip8) {
     };
     break;
 
+  case 0x6000:
+    chip8->V[chip8->inst.X] = chip8->V[chip8->inst.NN];
+    break;
   }
 }
