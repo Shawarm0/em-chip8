@@ -145,9 +145,8 @@ void emulate_instruction(chip8_t *chip8) {
           chip8->V[chip8->inst.X] ^ chip8->V[chip8->inst.Y];
       break;
     case 0x4:
-      uint_
 
-          break;
+      break;
     case 0x5:
 
       break;
