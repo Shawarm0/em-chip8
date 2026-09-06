@@ -189,5 +189,9 @@ void emulate_instruction(chip8_t *chip8) {
   case 0xA000:
     chip8->I = chip8->inst.NNN;
     break;
+
+  case 0xB000:
+    chip8->PC = (chip8->inst.NNN + chip8->V[0x0]) & 0x0FFF;
+    break;
   }
 }
