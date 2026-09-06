@@ -19,6 +19,8 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
 
   // Initialise chip8 state
+
+  srand(time(NULL));
   chip8_t chip8 = {0};
   const char *rom_name = argv[1];
   if (!init_chip8(&chip8, rom_name))

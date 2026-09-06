@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <time.h>
 
 typedef struct {
   SDL_Window *window;

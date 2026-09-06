@@ -193,5 +193,12 @@ void emulate_instruction(chip8_t *chip8) {
   case 0xB000:
     chip8->PC = (chip8->inst.NNN + chip8->V[0x0]) & 0x0FFF;
     break;
+
+  case 0xC000: {
+    int n = rand() % 256;
+    uint8_t sum = n & chip8->inst.NN;
+    chip8->V[chip8->inst.X] = sum;
+    break;
+  }
   }
 }
