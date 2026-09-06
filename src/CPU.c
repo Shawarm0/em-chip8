@@ -76,5 +76,17 @@ void emulate_instruction(chip8_t *chip8) {
 
   // Emulate opcode
   switch (chip8->inst.opcode & 0xF000) {
+  case 0x0000:
+    switch (chip8->inst.NNN) {
+    case 0x0E0:
+      break;
+    case 0x0EE:
+      chip8->PC = chip8->stack[chip8->SP];
+      chip8->SP -= 1;
+      break;
+    default:
+      chip8->PC = chip8->inst.NNN;
+    }
+    break;
   }
 }
