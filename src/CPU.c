@@ -200,5 +200,9 @@ void emulate_instruction(chip8_t *chip8) {
     chip8->V[chip8->inst.X] = sum;
     break;
   }
+
+  case 0xD000:
+
+    break;
   }
 }
