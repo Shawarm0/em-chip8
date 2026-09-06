@@ -55,7 +55,7 @@ bool set_config_from_args(config_t *config, int argc, char **argv) {
       .window_width = 64,     // CHIP8 original X resolution
       .window_height = 32,    // CHIP8 original Y resolution
       .fg_color = 0xFFFFFFFF, // WHITE
-      .bg_color = 0x00000000, // BLACK
+      .bg_color = 0x00000000, // YELLOW
       .scale_factor = 20,     // Default resolution will be 1280 x 640
   };
 

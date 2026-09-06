@@ -144,9 +144,13 @@ void emulate_instruction(chip8_t *chip8) {
       chip8->V[chip8->inst.X] =
           chip8->V[chip8->inst.X] ^ chip8->V[chip8->inst.Y];
       break;
-    case 0x4:
-
+    case 0x4: {
+      uint16_t sum = chip8->V[chip8->inst.X] + chip8->V[chip8->inst.Y];
+      uint8_t carry = (sum > 0xFF);
+      chip8->V[chip8->inst.X] = (uint8_t)sum; // truncation to low 8 bits
+      chip8->V[0xF] = carry;                  // after, so 8F14 leaves the flag
       break;
+    }
     case 0x5:
 
       break;
