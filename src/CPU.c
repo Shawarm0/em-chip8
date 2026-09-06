@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdint.h>
 
 bool init_chip8(chip8_t *chip8, const char rom_name[]) {
   const uint32_t entry_point = 0x200;
@@ -151,9 +152,12 @@ void emulate_instruction(chip8_t *chip8) {
       chip8->V[0xF] = carry;                  // after, so 8F14 leaves the flag
       break;
     }
-    case 0x5:
-
+    case 0x5: {
+      uint8_t no_borrow = chip8->V[chip8->inst.X] >= chip8->V[chip8->inst.Y];
+      chip8->V[chip8->inst.X] -= chip8->V[chip8->inst.Y];
+      chip8->V[0xF] = no_borrow;
       break;
+    }
     case 0x6:
 
       break;
