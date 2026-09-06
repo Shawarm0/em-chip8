@@ -42,6 +42,7 @@ typedef struct {
   uint8_t V[16];        // Data registers V0-VF
   uint16_t I;           // Index register
   uint16_t PC;          // Program Counter
+  uint16_t SP;          // Stack Pointer
   uint8_t delay_timer;  // Decrements at 60hz when >0
   uint8_t sound_timer;  // Decrements at 60hz and plays tone when >0
   bool keypad[16];      // Hexadecimal keypad 0x0 -0xF
