@@ -126,5 +126,41 @@ void emulate_instruction(chip8_t *chip8) {
   case 0x7000:
     chip8->V[chip8->inst.X] += chip8->inst.NN;
     break;
+  case 0x8000:
+
+    switch (chip8->inst.N) {
+    case 0x0:
+      chip8->V[chip8->inst.X] = chip8->V[chip8->inst.Y];
+      break;
+    case 0x1:
+      chip8->V[chip8->inst.X] =
+          chip8->V[chip8->inst.X] | chip8->V[chip8->inst.Y];
+      break;
+    case 0x2:
+      chip8->V[chip8->inst.X] =
+          chip8->V[chip8->inst.X] & chip8->V[chip8->inst.Y];
+      break;
+    case 0x3:
+      chip8->V[chip8->inst.X] =
+          chip8->V[chip8->inst.X] ^ chip8->V[chip8->inst.Y];
+      break;
+    case 0x4:
+      uint_
+
+          break;
+    case 0x5:
+
+      break;
+    case 0x6:
+
+      break;
+    case 0x7:
+
+      break;
+    case 0xE:
+      break;
+    }
+
+    break;
   }
 }
