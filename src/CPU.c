@@ -179,5 +179,11 @@ void emulate_instruction(chip8_t *chip8) {
     }
 
     break;
+
+  case 0x9000:
+    if (chip8->V[chip8->inst.X] != chip8->V[chip8->inst.Y]) {
+      chip8->PC += 2;
+    }
+    break;
   }
 }
