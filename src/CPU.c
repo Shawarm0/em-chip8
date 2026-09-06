@@ -166,12 +166,13 @@ void emulate_instruction(chip8_t *chip8) {
     }
     case 0x7: {
       uint8_t no_borrow = chip8->V[chip8->inst.Y] >= chip8->V[chip8->inst.X];
-      chip8->V[chip8->inst.Y] -= chip8->V[chip8->inst.X];
+      chip8->V[chip8->inst.X] =
+          chip8->V[chip8->inst.Y] - chip8->V[chip8->inst.X];
       chip8->V[0xF] = no_borrow;
       break;
     }
     case 0xE: {
-      uint8_t msb = chip8->V[chip8->inst.X] & 0xF0;
+      uint8_t msb = (chip8->V[chip8->inst.X] & 0x80) >> 7;
       chip8->V[chip8->inst.X] <<= 1;
       chip8->V[0xF] = msb;
       break;
