@@ -72,8 +72,8 @@ void emulate_instruction(chip8_t *chip8) {
   chip8->inst.NN = chip8->inst.opcode & 0x00FF;
   chip8->inst.N = chip8->inst.opcode & 0x000F;
 
-  chip8->inst.X = (chip8->inst.opcode & 0x0F00) >> 8;
-  chip8->inst.Y = (chip8->inst.opcode & 0x00F0) >> 4;
+  chip8->inst.X = (chip8->inst.opcode >> 8) & 0x000F;
+  chip8->inst.Y = (chip8->inst.opcode >> 4) & 0x000F;
 
   // Emulate opcode
   switch (chip8->inst.opcode & 0xF000) {
