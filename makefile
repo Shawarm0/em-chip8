@@ -8,6 +8,10 @@ all:
 	mkdir -p out
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET) `sdl2-config --cflags --libs`
 
+debug:
+	mkdir -p out
+	$(CC) $(CFLAGS) -DDEBUG -g $(SRC) -o $(TARGET) `sdl2-config --cflags --libs`
+
 run: all
 	./$(TARGET)
 

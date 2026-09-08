@@ -19,6 +19,7 @@ typedef struct {
   uint32_t bg_color;      // Background oclor RGBA8888
   uint32_t scale_factor;  // Amount to scale a CHIP8 pixel by e.g. 20x will be a
                           // 20x larger window
+  bool pixel_outlines;    // Draw pixel outlines
 } config_t;
 
 typedef enum {
@@ -59,12 +60,14 @@ void term_sdl(const sdl_t sdl);
 
 // sdl.c
 void clear_screen(const sdl_t sdl, const config_t config);
-void update_screen(const sdl_t sdl);
+void update_screen(const sdl_t sdl, const config_t config, const chip8_t chip8);
 void handle_input(chip8_t *chip8, sdl_t sdl);
 void set_win_title(SDL_Window *window, const char *title);
 
 // CPU.c
 bool init_chip8(chip8_t *chip8, const char rom_name[]);
-void emulate_instruction(chip8_t *chip8);
-
+void emulate_instruction(chip8_t *chip8, config_t config);
+#ifdef DEBUG
+void print_debug_info(chip8_t *chip8);
+#endif
 #endif

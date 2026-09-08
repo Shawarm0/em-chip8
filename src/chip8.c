@@ -39,10 +39,10 @@ int main(int argc, char **argv) {
     if (chip8.state == PAUSED)
       continue;
 
-    emulate_instruction(&chip8);
+    emulate_instruction(&chip8, config);
 
     clear_screen(sdl, config);
-    update_screen(sdl);
+    update_screen(sdl, config, chip8);
 
     SDL_Delay(16);
   }
