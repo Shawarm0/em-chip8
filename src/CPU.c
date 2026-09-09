@@ -82,7 +82,8 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
 
   // Emulate opcode
   switch (chip8->inst.opcode & 0xF000) {
-  case 0x0000:
+
+  case 0x0000: {
 
     switch (chip8->inst.NNN) {
     case 0x0E0:
@@ -98,45 +99,57 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
     }
 
     break;
-  case 0x1000:
+  }
+
+  case 0x1000: {
     chip8->PC = chip8->inst.NNN;
     break;
+  }
 
-  case 0x2000:
+  case 0x2000: {
     chip8->SP += 1;
     chip8->stack[chip8->SP] = chip8->PC;
     chip8->PC = chip8->inst.NNN;
     break;
+  }
 
-  case 0x3000:
+  case 0x3000: {
 
     if (chip8->V[chip8->inst.X] == chip8->inst.NN) {
       chip8->PC += 2;
     };
 
     break;
+  }
 
-  case 0x4000:
+  case 0x4000: {
 
     if (chip8->V[chip8->inst.X] != chip8->inst.NN) {
       chip8->PC += 2;
     };
 
     break;
-  case 0x5000:
+  }
+
+  case 0x5000: {
 
     if (chip8->V[chip8->inst.X] == chip8->V[chip8->inst.Y]) {
       chip8->PC += 2;
     };
     break;
+  }
 
-  case 0x6000:
+  case 0x6000: {
     chip8->V[chip8->inst.X] = chip8->inst.NN;
     break;
-  case 0x7000:
+  }
+
+  case 0x7000: {
     chip8->V[chip8->inst.X] += chip8->inst.NN;
     break;
-  case 0x8000:
+  }
+
+  case 0x8000: {
 
     switch (chip8->inst.N) {
     case 0x0:
@@ -189,20 +202,24 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
     }
 
     break;
+  }
 
-  case 0x9000:
+  case 0x9000: {
     if (chip8->V[chip8->inst.X] != chip8->V[chip8->inst.Y]) {
       chip8->PC += 2;
     }
     break;
+  }
 
-  case 0xA000:
+  case 0xA000: {
     chip8->I = chip8->inst.NNN;
     break;
+  }
 
-  case 0xB000:
+  case 0xB000: {
     chip8->PC = (chip8->inst.NNN + chip8->V[0x0]) & 0x0FFF;
     break;
+  }
 
   case 0xC000: {
     int n = rand() % 256;
@@ -250,11 +267,34 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
     break;
   }
 
-  default:
+  case 0xE0000: {
+
+    switch (chip8->inst.NN) {
+
+    case 0x9E: {
+      if (chip8->keypad[chip8->V[chip8->inst.X]]) {
+        chip8->PC += 2;
+      }
+      break;
+    }
+
+    case 0xA1: {
+      if (!chip8->keypad[chip8->V[chip8->inst.X]]) {
+        chip8->PC += 2;
+      }
+      break;
+    }
+    }
+
+    break;
+  }
+
+  default: {
 
     puts("Not implemented");
 
     break; // Unimplemented or invalid opcode
+  }
   }
 }
 
@@ -446,6 +486,23 @@ void print_debug_info(chip8_t *chip8) {
            "turned off.\n",
            chip8->inst.N, chip8->inst.X, chip8->V[chip8->inst.X], chip8->inst.Y,
            chip8->V[chip8->inst.Y], chip8->I);
+    break;
+
+  case 0xE000:
+    switch (chip8->inst.NN) {
+    case 0x9E:
+      // 0xEx9E: Skip next instruction if key with value Vx is pressed
+      printf("Skip next instruction if key %02X is pressed (V%X = 0x%02X)\n",
+             chip8->V[chip8->inst.X], chip8->inst.X, chip8->V[chip8->inst.X]);
+      break;
+
+    case 0xA1:
+      // 0xExA1: Skip next instruction if key with value Vx is not pressed
+      printf(
+          "Skip next instruction if key %02X is not pressed (V%X = 0x%02X)\n",
+          chip8->V[chip8->inst.X], chip8->inst.X, chip8->V[chip8->inst.X]);
+      break;
+    }
     break;
 
   default:
