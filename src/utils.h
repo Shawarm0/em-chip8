@@ -19,6 +19,7 @@ typedef struct {
   uint32_t bg_color;      // Background oclor RGBA8888
   uint32_t scale_factor;  // Amount to scale a CHIP8 pixel by e.g. 20x will be a
                           // 20x larger window
+  uint32_t insts_per_second; // CHIP8 CPU clock rate
   bool pixel_outlines;    // Draw pixel outlines
 } config_t;
 
@@ -67,6 +68,7 @@ void set_win_title(SDL_Window *window, const char *title);
 // CPU.c
 bool init_chip8(chip8_t *chip8, const char rom_name[]);
 void emulate_instruction(chip8_t *chip8, config_t config);
+void update_timers(chip8_t *chip8);
 #ifdef DEBUG
 void print_debug_info(chip8_t *chip8);
 #endif

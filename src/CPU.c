@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+// Usable subroutine nesting levels, derived from the stack array itself
+#define STACK_DEPTH (sizeof(((chip8_t *)0)->stack) / sizeof(uint16_t))
+
 bool init_chip8(chip8_t *chip8, const char rom_name[]) {
   const uint32_t entry_point = 0x200;
   const uint8_t font[] = {
@@ -92,8 +95,14 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
       break;
 
     case 0x0EE:
-      chip8->PC = chip8->stack[chip8->SP];
-      chip8->SP -= 1;
+      // 0x00EE: Return from subroutine
+      if (chip8->SP == 0) {
+        SDL_Log("Stack underflow: return with an empty stack at 0x%04X\n",
+                chip8->PC - 2);
+        chip8->state = QUIT;
+        break;
+      }
+      chip8->PC = chip8->stack[--chip8->SP];
       break;
     default:
 
@@ -109,8 +118,14 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
   }
 
   case 0x2000: {
-    chip8->SP += 1;
-    chip8->stack[chip8->SP] = chip8->PC;
+    // 0x2NNN: Call subroutine at NNN
+    if (chip8->SP >= STACK_DEPTH) {
+      SDL_Log("Stack overflow: call to 0x%03X at 0x%04X exceeds %u levels\n",
+              chip8->inst.NNN, chip8->PC - 2, (unsigned)STACK_DEPTH);
+      chip8->state = QUIT;
+      break;
+    }
+    chip8->stack[chip8->SP++] = chip8->PC;
     chip8->PC = chip8->inst.NNN;
     break;
   }
@@ -201,6 +216,11 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
       chip8->V[0xF] = msb;
       break;
     }
+
+    default:
+      SDL_Log("Unimplemented opcode 0x%04X at 0x%04X\n", chip8->inst.opcode,
+              chip8->PC - 2);
+      break;
     }
 
     break;
@@ -274,18 +294,23 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
     switch (chip8->inst.NN) {
 
     case 0x9E: {
-      if (chip8->keypad[chip8->V[chip8->inst.X]]) {
+      if (chip8->keypad[chip8->V[chip8->inst.X] & 0xF]) {
         chip8->PC += 2;
       }
       break;
     }
 
     case 0xA1: {
-      if (!chip8->keypad[chip8->V[chip8->inst.X]]) {
+      if (!chip8->keypad[chip8->V[chip8->inst.X] & 0xF]) {
         chip8->PC += 2;
       }
       break;
     }
+
+    default:
+      SDL_Log("Unimplemented opcode 0x%04X at 0x%04X\n", chip8->inst.opcode,
+              chip8->PC - 2);
+      break;
     }
 
     break;
@@ -353,29 +378,41 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
     }
 
     case 0x55: {
-      for (int i = 0; i < 16; i++) {
+      for (uint8_t i = 0; i <= chip8->inst.X; i++) {
         chip8->memory[chip8->I + i] = chip8->V[i];
       }
       break;
     }
 
     case 0x65: {
-      for (int i = 0; i < 16; i++) {
+      for (uint8_t i = 0; i <= chip8->inst.X; i++) {
         chip8->V[i] = chip8->memory[chip8->I + i];
       }
       break;
     }
+
+    default:
+      SDL_Log("Unimplemented opcode 0x%04X at 0x%04X\n", chip8->inst.opcode,
+              chip8->PC - 2);
+      break;
     }
     break;
   }
 
-  default: {
-
-    puts("Not implemented");
-
-    break; // Unimplemented or invalid opcode
+  default:
+    // Unreachable: every high nibble 0x0-0xF has a case above. Unknown
+    // opcodes are reported by the inner switches instead.
+    break;
   }
-  }
+}
+
+// Decrement the 60Hz timers. Call once per frame, not once per instruction.
+void update_timers(chip8_t *chip8) {
+  if (chip8->delay_timer > 0)
+    chip8->delay_timer--;
+
+  if (chip8->sound_timer > 0)
+    chip8->sound_timer--;
 }
 
 #ifdef DEBUG
@@ -393,13 +430,18 @@ void print_debug_info(chip8_t *chip8) {
 
     case 0x0EE:
       // 0x00EE: Return from subroutine
-      printf("Return from subroutine to address 0x%04X\n",
-             chip8->stack[chip8->SP]);
+      if (chip8->SP == 0) {
+        printf("Return from subroutine with an empty stack!\n");
+      } else {
+        printf("Return from subroutine to address 0x%04X\n",
+               chip8->stack[chip8->SP - 1]);
+      }
       break;
 
     default:
-      // 0x0NNN: Call machine code routine at NNN
-      printf("Call machine code routine at NNN (0x%03X)\n", chip8->inst.NNN);
+      // 0x0NNN: Call machine code routine at NNN (ignored)
+      printf("Call machine code routine at NNN (0x%03X) - ignored\n",
+             chip8->inst.NNN);
       break;
     }
     break;
@@ -581,6 +623,74 @@ void print_debug_info(chip8_t *chip8) {
       printf(
           "Skip next instruction if key %02X is not pressed (V%X = 0x%02X)\n",
           chip8->V[chip8->inst.X], chip8->inst.X, chip8->V[chip8->inst.X]);
+      break;
+
+    default:
+      printf("Unimplemented Opcode.\n");
+      break;
+    }
+    break;
+
+  case 0xF000:
+    switch (chip8->inst.NN) {
+    case 0x07:
+      // 0xFX07: Set VX to the value of the delay timer
+      printf("Set V%X = delay timer (0x%02X)\n", chip8->inst.X,
+             chip8->delay_timer);
+      break;
+
+    case 0x0A:
+      // 0xFX0A: Await a key press, then store it in VX
+      printf("Await a key press, store the key in V%X\n", chip8->inst.X);
+      break;
+
+    case 0x15:
+      // 0xFX15: Set the delay timer to VX
+      printf("Set delay timer = V%X (0x%02X)\n", chip8->inst.X,
+             chip8->V[chip8->inst.X]);
+      break;
+
+    case 0x18:
+      // 0xFX18: Set the sound timer to VX
+      printf("Set sound timer = V%X (0x%02X)\n", chip8->inst.X,
+             chip8->V[chip8->inst.X]);
+      break;
+
+    case 0x1E:
+      // 0xFX1E: Set I += VX
+      printf("Set I (0x%04X) += V%X (0x%02X). Result: 0x%04X\n", chip8->I,
+             chip8->inst.X, chip8->V[chip8->inst.X],
+             (uint16_t)(chip8->I + chip8->V[chip8->inst.X]));
+      break;
+
+    case 0x29:
+      // 0xFX29: Set I to the font sprite for the character in VX
+      printf("Set I to font sprite for character in V%X (0x%02X). Result: "
+             "0x%04X\n",
+             chip8->inst.X, chip8->V[chip8->inst.X],
+             chip8->V[chip8->inst.X] * 5);
+      break;
+
+    case 0x33:
+      // 0xFX33: Store the BCD of VX at I, I+1, I+2
+      printf("Store BCD of V%X (0x%02X) at memory 0x%04X-0x%04X\n",
+             chip8->inst.X, chip8->V[chip8->inst.X], chip8->I, chip8->I + 2);
+      break;
+
+    case 0x55:
+      // 0xFX55: Store V0-VX to memory starting at I
+      printf("Store V0-V%X to memory starting at I (0x%04X)\n", chip8->inst.X,
+             chip8->I);
+      break;
+
+    case 0x65:
+      // 0xFX65: Load V0-VX from memory starting at I
+      printf("Load V0-V%X from memory starting at I (0x%04X)\n", chip8->inst.X,
+             chip8->I);
+      break;
+
+    default:
+      printf("Unimplemented Opcode.\n");
       break;
     }
     break;

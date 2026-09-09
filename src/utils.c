@@ -56,8 +56,9 @@ bool set_config_from_args(config_t *config, int argc, char **argv) {
       .window_height = 32,    // CHIP8 original Y resolution
       .fg_color = 0xFFFFFFFF, // WHITE
       .bg_color = 0x00000000, // BLACK
-      .scale_factor = 20,     // Default resolution will be 1280 x 640
-      .pixel_outlines = true, // Draw pixel outlines by default
+      .scale_factor = 20,       // Default resolution will be 1280 x 640
+      .insts_per_second = 700,  // Instructions per second, ~11-12 per frame
+      .pixel_outlines = true,   // Draw pixel outlines by default
   };
 
   // Override defaults from passed in arguments
