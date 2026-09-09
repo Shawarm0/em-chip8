@@ -131,7 +131,3 @@ several instructions. This implementation makes the following choices:
   colours, scale factor, and clock rate are compile-time defaults in
   `set_config_from_args`.
 - SUPER-CHIP and XO-CHIP extensions are not implemented.
-
-## Licence
-
-No licence has been declared for this project yet.
