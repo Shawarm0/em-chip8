@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -95,7 +96,8 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
       chip8->SP -= 1;
       break;
     default:
-      chip8->PC = chip8->inst.NNN;
+
+      break;
     }
 
     break;
@@ -267,7 +269,7 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
     break;
   }
 
-  case 0xE0000: {
+  case 0xE000: {
 
     switch (chip8->inst.NN) {
 
@@ -286,6 +288,84 @@ void emulate_instruction(chip8_t *chip8, const config_t config) {
     }
     }
 
+    break;
+  }
+
+  case 0xF000: {
+    switch (chip8->inst.NN) {
+
+    case 0x07: {
+
+      chip8->V[chip8->inst.X] = chip8->delay_timer;
+
+      break;
+    }
+
+    case 0x0A: {
+      uint8_t key_pressed = 0xFF;
+
+      for (uint8_t i = 0; i < 16; i++) {
+        if (chip8->keypad[i]) {
+          key_pressed = i;
+          break;
+        }
+      }
+
+      if (key_pressed != 0xFF) {
+        chip8->V[chip8->inst.X] = key_pressed;
+      } else {
+        chip8->PC -= 2;
+        // No key pressed.
+        // Don't advance the PC.
+        return;
+      }
+
+      break;
+    }
+
+    case 0x15: {
+      chip8->delay_timer = chip8->V[chip8->inst.X];
+      break;
+    }
+
+    case 0x18: {
+      chip8->sound_timer = chip8->V[chip8->inst.X];
+      break;
+    }
+
+    case 0x1E: {
+      chip8->I += chip8->V[chip8->inst.X];
+
+      break;
+    }
+
+    case 0x29: {
+      chip8->I = chip8->V[chip8->inst.X] * 5;
+      break;
+    }
+
+    case 0x33: {
+      uint8_t value = chip8->V[chip8->inst.X];
+      chip8->memory[chip8->I] = value / 100;
+      chip8->memory[chip8->I + 1] = (value / 10) % 10;
+      chip8->memory[chip8->I + 2] = value % 10;
+      break;
+    }
+
+    case 0x55: {
+      for (int i = 0; i < 16; i++) {
+        chip8->memory[chip8->I + i] = chip8->V[i];
+      }
+      break;
+    }
+
+    case 0x65: {
+      for (int i = 0; i < 16; i++) {
+        chip8->V[i] = chip8->memory[chip8->I + i];
+      }
+      break;
+    }
+    }
     break;
   }
 
